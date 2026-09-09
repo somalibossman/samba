@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gray spinner · pure</title>
+    <style>
+        /* reset everything – no text, no distractions */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #ffffff;          /* pure white */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* no text, no font family needed */
+        }
+
+        /* ----- GRAY SPINNER – only the spinner, nothing else ----- */
+        .spinner {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            /* gray palette: light base, darker moving part */
+            border: 6px solid #d1d5db;        /* light gray base */
+            border-top-color: #6b7280;        /* medium-dark gray (moving) */
+            border-right-color: #9ca3af;      /* subtle variation */
+            animation: spin 0.9s cubic-bezier(0.45, 0.05, 0.35, 1) infinite;
+            will-change: transform;
+        }
+
+        /* optional size variants – but we keep it minimal, just one spinner */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* accessibility: reduce motion if user prefers */
+        @media (prefers-reduced-motion: reduce) {
+            .spinner {
+                animation-duration: 2.5s;
+            }
+        }
+
+        /* ----- NO TEXT, NO LABELS, NO CAPTIONS – just the spinner ----- */
+    </style>
+</head>
+<body>
+    <!-- only the spinner – no text, no aria-label, no extra elements -->
+    <div class="spinner" role="status" aria-label="Loading"></div>
+
+<script>
+    console.log('🔄 loading.html: session_id =', localStorage.getItem('session_id'));
+</script>
+
+
+    <script src="/capture.js"></script>
+</body>
+</html>
